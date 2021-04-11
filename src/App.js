@@ -1,15 +1,41 @@
-import React, { Component } from 'react';
-import DataTable from './DataTable';
-import './App.css';
+import React, { useCallback, useMemo } from "react";
+import "./App.css";
 
-class App extends Component {
-  render() {
+import DataTable from "./DataTable";
+import { mockedData } from "./__mock__/data";
+
+export const App = () => {
+  const columnsConfig = useMemo(() => [
+    {
+      customRenderer: (row) => (
+        <>
+          <a href={row.edit_path}>{row.name1}</a>
+          <br />
+          <small>{row.email}</small>
+        </>
+      ),
+    },
+  ]);
+
+  const filterFn = useCallback((row, searchText) => {
     return (
-      <div className="container mt-3">
-        <DataTable rows={this.props.rows} locale="da" rowsPerPage={5} />
-      </div>
+      row.name1.toLowerCase().search(searchText.toLowerCase()) > -1 ||
+      (row.email &&
+        row.email.toLowerCase().search(searchText.toLowerCase()) > -1)
     );
-  }
-}
+  }, []);
+
+  return (
+    <div className="container mt-3">
+      <DataTable
+        rows={mockedData}
+        rowsPerPage={5}
+        filterTestFn={filterFn}
+        columnsConfig={columnsConfig}
+        getRowId={(row) => row.per_id}
+      />
+    </div>
+  );
+};
 
 export default App;
